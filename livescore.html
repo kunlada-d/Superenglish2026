@@ -201,9 +201,22 @@
             <div class="flex gap-2 w-full md:max-w-md items-center">
                 <div class="relative flex-1">
                     <select id="sportSelect" onchange="onSportChange()" class="w-full px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#fd5051] focus:ring-4 focus:ring-[#fd5051]/5 transition-all appearance-none cursor-pointer">
+                        <option value="sport1">สูตรคูณเร็ว มัธยม</option>
+                        <option value="sport2">สูตรคูณเร็ว ประถมต้น</option>
+                        <option value="sport3">สูตรคูณเร็ว ประถมปลาย</option>
+                        <option value="sport2">Sudoku มัธยม</option>
+                        <option value="sport1">A-Math ประถม</option>
+                        <option value="sport2">A-Math ม.ต้น</option>
+                        <option value="sport3">A-Math ม.ปลาย</option>
+                        <option value="sport1">Super A-Math</option>
+                        <option value="sport2">Crossword ประถม</option>
+                        <option value="sport3">Crossword ม.ต้น</option>
+                        <option value="sport1">Crossword ม.ปลาย</option>
+                        <option value="sport1">Super Crossword</option>
+                        <option value="sport3">คำคมประถม</option>
                         <option value="sport1">คำคมมัธยม</option>
-                        <option value="sport2">ฟุตบอล รุ่นอายุ 15 ปี ชาย</option>
-                        <option value="sport3">บาสเกตบอล รุ่นอายุ 12 ปี</option>
+                        <option value="sport2">สะกดคำภาษาไทย ประถม</option>
+                        <option value="sport3">Spelling Bee</option>
                     </select>
                     <span class="material-symbols-rounded absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
                 </div>
@@ -251,26 +264,117 @@
 
     const csvDatabase = {
         sport1: {
-            spreadsheetId: '14ARVsfNjJrWivet_w2tqB6TAAhE5MenwZH6jdI9kA9Y', 
+            spreadsheetId: '1YspB3coFEK4sxtdIf3f3Zehb-Td9K_rO8lHZhN9majc', 
             athletes:  'PLAYERSS',  
             schedule:  'MATCHES',  
             livescore: 'STANDINGS',   
             results:   'SCORES'
         },
         sport2: {
-            spreadsheetId: '2Bbbbbb_ID_ไฟล์ของกีฬาที่_2_ดูจากURLชีต', 
+            spreadsheetId: '1oqQ4TGtAscNuDzPweDgAhvxJYgbncmdLExM7wseQHLY', 
             athletes:  'PLAYERSS',  
             schedule:  'MATCHES',
             livescore: 'MATCHES',
             results:   'STANDINGS'
         },
         sport3: {
-            spreadsheetId: '3Cccccc_ID_ไฟล์ของกีฬาที่_3_ดูจากURLชีต',
+            spreadsheetId: '1X6VBMvNthjVHgKaFjap8NZLyu2G6h_xSvu--C_lGRu4',
             athletes:  'PLAYERSS',
             schedule:  'MATCHES',
             livescore: 'MATCHES',
             results:   'STANDINGS'
-        }
+        },
+        sport4: {
+            spreadsheetId: '1qhkOXvoPXUU5SKPAVZNq7KDCgS6NQWd2rpBLMmIgRKE', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',  
+            livescore: 'STANDINGS',   
+            results:   'SCORES'
+        },
+        sport5: {
+            spreadsheetId: '1QbPKZ2tlf6RGC96kpl11AKoBEXjz3UxgwsPbky2ttiU', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport6: {
+            spreadsheetId: '1ZXqXsqDdmbvn5bAP2Y59BNemKE-uHQeAWnoZNxSdI1M',
+            athletes:  'PLAYERSS',
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport7: {
+            spreadsheetId: '1Oo6giO3d8wtw8Rg60rTMZk1dIK92_alaEdgJaAeloTA', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',  
+            livescore: 'STANDINGS',   
+            results:   'SCORES'
+        },
+        sport8: {
+            spreadsheetId: '102cOikKEX3EXek0mhF0vRBnJO9oqTgnSmP_6X7D8qlY', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport9: {
+            spreadsheetId: '1c0LG8DSNZdbfNhypA1LPbFsRyvN3umeuoBDiKdEEGwg',
+            athletes:  'PLAYERSS',
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport10: {
+            spreadsheetId: '1rbyql-djUQy3i1kERVGgDwQAJqv1OUGXFsL5MQV6cy0', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',  
+            livescore: 'STANDINGS',   
+            results:   'SCORES'
+        },
+        sport11: {
+            spreadsheetId: '1s_GITIcVTCSKq6TFTNmQgb3ENn1mPSY3-8iXW4UCRUQ', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport12: {
+            spreadsheetId: '1p1mxXN10NnXbYCHM8oJyJKS4JLg6Vg3R4FBNCg6g-L8',
+            athletes:  'PLAYERSS',
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport13: {
+            spreadsheetId: '14ARVsfNjJrWivet_w2tqB6TAAhE5MenwZH6jdI9kA9Y', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',  
+            livescore: 'STANDINGS',   
+            results:   'SCORES'
+        },
+        sport14: {
+            spreadsheetId: '1tx3roBfab9q8GmR3Z2UcI4GxfuwCULKXH4aqT1ncN88', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport15: {
+            spreadsheetId: '1q7XGZp6jT3xbJePYkzaUJYKLLR-BVPt5ECFGC88Ix0c',
+            athletes:  'PLAYERSS',
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport16: {
+            spreadsheetId: '14ARVsfNjJrWivet_w2tqB6TAAhE5MenwZH6jdI9kA9Y', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',  
+            livescore: 'STANDINGS',   
+            results:   'SCORES'
+        },
     };
 
     // ควบคุมการเปลี่ยนแท็บ
