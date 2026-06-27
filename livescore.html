@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการข้อมูลการแข่งขัน - SUPER ENGLISH 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+    <style>
+        body { font-family: 'Google Sans', sans-serif; background-color: #f8fafc; }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen w-full pb-12 text-[#29343c]">
+
+    <nav class="h-20 bg-white border-b border-gray-100 px-6 md:px-12 flex items-center justify-between sticky top-0 z-50">
+        <div class="text-xl font-extrabold text-[#29343c]">
+            SUPER<span class="text-[#fd5051]">ENGLISH</span> 2026
+        </div>
+        <div class="text-sm font-medium text-gray-400">ศูนย์ข้อมูลการแข่งขัน</div>
+    </nav>
+
+    <main class="px-4 md:px-12 mt-8 flex flex-col gap-6">
+        
+        <div class="bg-white p-6 rounded-2xl border border-gray-200/60 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">ข้อมูลและผลการแข่งขัน</h1>
+                <p class="text-xs text-gray-400">เลือกประเภทกีฬาเพื่อดูรายชื่อ ตารางแข่ง และผลคะแนนแบบ Real-time</p>
+            </div>
+            
+            <div class="flex gap-2 w-full md:max-w-md items-center">
+                <div class="relative flex-1">
+                    <select id="sportSelect" class="w-full px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#fd5051] focus:ring-4 focus:ring-[#fd5051]/5 transition-all appearance-none cursor-pointer">
+                        <option value="sport1">คำคมมัธยม</option>
+                        <option value="sport2">ฟุตบอล รุ่นอายุ 15 ปี ชาย</option>
+                        <option value="sport3">บาสเกตบอล รุ่นอายุ 12 ปี</option>
+                    </select>
+                    <span class="material-symbols-rounded absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">expand_more</span>
+                </div>
+
+                <button onclick="manualRefresh()" title="รีเฟรชข้อมูล" class="px-4 py-3 bg-white border border-gray-200 rounded-xl hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-xs shrink-0 text-gray-600">
+                    <span id="refreshIcon" class="material-symbols-rounded text-xl">refresh</span>
+                    <span id="countdownText" class="text-xs font-bold text-gray-400 min-w-[16px]">30</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex border-b border-gray-200 gap-2 overflow-x-auto scrollbar-none whitespace-nowrap">
+            <button onclick="switchTab('athletes')" id="tab-athletes" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600 flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-rounded text-lg">groups</span> รายชื่อนักกีฬา
+            </button>
+            <button onclick="switchTab('schedule')" id="tab-schedule" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600 flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-rounded text-lg">calendar_month</span> ตารางการแข่งขัน
+            </button>
+            <button onclick="switchTab('livescore')" id="tab-livescore" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600 flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-rounded text-lg">scoreboard</span> ไลฟ์สกอร์บอร์ด
+            </button>
+            <button onclick="switchTab('results')" id="tab-results" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600 flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-rounded text-lg">emoji_events</span> ผลคะแนนสรุป
+            </button>
+        </div>
+
+        <div id="contentDisplay" class="bg-white border border-gray-200/60 rounded-2xl shadow-xs p-6 min-h-[400px]">
+        </div>
+
+    </main>
+
+    <script>
+    // 🚨 1. ตั้งค่าตัวแปรระบบหลัก
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxm-DSWaiZldUyzu353D0Xxq7B_NK80VItPw7PK5NzJc72tmCCPUi6SxZxNKweNYqVH/exec';
+    
+    // 📦 ตัวแปรระบบ Cache & State
+    let globalCacheData = {};        
+    let isFirstLoad = true;          
+    let currentTab = 'athletes'; // ตัวแปรหลักตัวเดียว ห้ามใช้ window.currentTab ซ้ำซ้อน
+    let globalAthletesMap = {};      
+
+    // 📦 ฐานข้อมูลแมป ID ไฟล์ และ ชื่อแผ่นงาน
+    const csvDatabase = {
+        sport1: {
+            spreadsheetId: '14ARVsfNjJrWivet_w2tqB6TAAhE5MenwZH6jdI9kA9Y', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',  
+            livescore: 'STANDINGS',   
+            results:   'SCORES'
+        },
+        sport2: {
+            spreadsheetId: '2Bbbbbb_ID_ไฟล์ของกีฬาที่_2_ดูจากURLชีต', 
+            athletes:  'PLAYERSS',  
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        },
+        sport3: {
+            spreadsheetId: '3Cccccc_ID_ไฟล์ของกีฬาที่_3_ดูจากURLชีต',
+            athletes:  'PLAYERSS',
+            schedule:  'MATCHES',
+            livescore: 'MATCHES',
+            results:   'STANDINGS'
+        }
+    };
+
+    // 🎛️ 2. ระบบนับถอยหลัง Auto Refresh (30 วินาที)
+    const REFRESH_INTERVAL = 30;
+    let countdown = REFRESH_INTERVAL;
+    let refreshTimer = null;
+
+    // 💥 3. ฟังก์ชันหลักสำหรับดึงข้อมูลสด (Real-time เวอร์ชันไร้รอยต่อ จอไม่ดับ)
+    async function loadData(forceLoading = false) {
+        const selectElement = document.getElementById('sportSelect');
+        if (!selectElement) return;
+        
+        const selectedSport = selectElement.value;
+        const container = document.getElementById('contentDisplay');
+        if (!container) return;
+        
+        const sportConfig = csvDatabase[selectedSport];
+        const targetSheet = sportConfig?.[currentTab];
+        const targetSheetId = sportConfig?.spreadsheetId;
+        
+        if (!targetSheet || !targetSheetId) {
+            container.innerHTML = `<div class="text-center py-24 text-gray-400 text-sm">ยังไม่ได้ตั้งค่าไฟล์หรือชื่อแผ่นงานสำหรับกีฬานี้</div>`;
+            return;
+        }
+
+        const cacheKey = `${selectedSport}_${currentTab}`;
+
+        // บังคับขึ้น Loading หรือขึ้นเฉพาะตอนที่ "ยังไม่เคยโหลดแท็บนี้เลย"
+        if (forceLoading || (isFirstLoad && !globalCacheData[cacheKey])) {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-24 text-gray-400">
+                    <div class="inline-block animate-spin w-8 h-8 border-[3px] border-current border-t-transparent text-[#fd5051] rounded-full mb-3"></div>
+                    <p class="text-xs font-medium">กำลังโหลดข้อมูล...</p>
+                </div>
+            `;
+        } else if (globalCacheData[cacheKey]) {
+            // ถ้ามี Cache อยู่แล้ว และไม่ได้บังคับ Loading ให้วาดของเก่าแก้ขัดใน 0.01 วิ ทันที!
+            renderCurrentTabFromRows(globalCacheData[cacheKey]);
+        }
+
+        try {
+            // ดึงรายชื่อนักกีฬาเก็บไว้เพื่อแมปชื่อจริงก่อน (เฉพาะตอนตารางแข่งที่ยังไม่มีข้อมูลคลังนักกีฬา)
+            if (currentTab === 'schedule' && Object.keys(globalAthletesMap).length === 0) {
+                const athRes = await fetch(`${webAppUrl}?id=${targetSheetId}&sheet=${sportConfig.athletes}`);
+                const athData = await athRes.json();
+                if (athData.status === "success") saveAthletesToMap(athData.data);
+            }
+
+            // Fetch ข้อมูลสดจาก Google Sheets หลังบ้านเงียบๆ หน้าจอไม่กระพริบ
+            const response = await fetch(`${webAppUrl}?id=${targetSheetId}&sheet=${targetSheet}`);
+            const result = await response.json();
+            
+            if (result.status === "success") {
+                globalCacheData[cacheKey] = result.data;
+                isFirstLoad = false; 
+                
+                // อัปเดตข้อมูลสดใหม่ลงหน้าจอ
+                renderCurrentTabFromRows(result.data);
+            } else {
+                if (!globalCacheData[cacheKey]) {
+                    container.innerHTML = `<div class="text-center py-24 text-red-400 text-sm">ข้อผิดพลาดหลังบ้าน: ${result.message}</div>`;
+                }
+            }
+        } catch (error) {
+            if (!globalCacheData[cacheKey]) {
+                container.innerHTML = `<div class="text-center py-24 text-red-400 text-sm">เชื่อมต่อ API ล้มเหลว: ${error.message}</div>`;
+            }
+            console.error("Background fetch error:", error);
+        }
+    }
+
+    // 🛠️ 4. ฟังก์ชันจัดการคัดกรองตัว Render ให้ตรงกับแท็บปัจจุบัน
+    function renderCurrentTabFromRows(rawRows) {
+        if (currentTab === 'athletes') {
+            saveAthletesToMap(rawRows); 
+            renderAthletesTableFromGrid(rawRows);
+        } else if (currentTab === 'schedule') {
+            renderScheduleViewFromGrid(rawRows);
+        } else if (currentTab === 'livescore') {
+            renderLiveScoreView(rawRows);
+        } else if (currentTab === 'results') {
+            renderResultsView(rawRows);
+        }
+    }
+
+    // 🧠 ฟังก์ชันเก็บข้อมูลนักกีฬาลงความจำชั่วคราว
+    function saveAthletesToMap(rows) {
+        globalAthletesMap = {};
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i];
+            if (cols && cols.length >= 4 && cols[1]) {
+                const athleteId = cols[1].toString().trim();
+                globalAthletesMap[athleteId] = {
+                    name: cols[2] || 'ไม่ระบุชื่อ',
+                    school: cols[3] || 'ไม่ระบุโรงเรียน',
+                    img: (cols[12] && cols[12].startsWith('http')) ? cols[12] : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                };
+            }
+        }
+    }
+
+    // 👥 5. ฟังก์ชันสร้างหน้าจอ "รายชื่อผู้เข้าแข่งขัน"
+    function renderAthletesTableFromGrid(rows) {
+        const container = document.getElementById('contentDisplay');
+        if (rows.length <= 1) {
+            container.innerHTML = `<div class="text-center py-16 text-gray-400 text-sm">ไม่พบข้อมูลรายชื่อนักกีฬาในตาราง</div>`;
+            return;
+        }
+
+        let validAthletesCount = 0;
+        let cardsHtml = "";
+
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i];
+            if (cols && cols.length >= 4 && cols[1] && cols[1].toString().trim() !== "") {
+                validAthletesCount++;
+                
+                const category = cols[0];
+                const athleteId = cols[1];
+                const studentName = cols[2];
+                const school = cols[3];
+                const coach1 = cols[4] || '-';
+                const coach2 = cols[5] || '-';
+                const director = cols[6] || '-';
+                const cardUrl = cols[10];
+                const checkinStatus = cols[11] || 'CHECKED_IN';
+                
+                let imgUrl = cols[12];
+                if (!imgUrl || imgUrl.toString().trim() === "" || !imgUrl.toString().startsWith('http')) {
+                    imgUrl = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+                }
+
+                cardsHtml += `
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col sm:flex-row gap-5 items-start sm:items-center shadow-xs hover:border-gray-200 transition-all">
+                        <div class="w-20 h-20 rounded-full overflow-hidden bg-slate-100 border border-gray-100 flex-none mx-auto sm:mx-0 relative group">
+                            <img id="img-${athleteId}" src="${imgUrl}" alt="${studentName}" class="w-full h-full object-cover" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                        </div>
+                        <div class="flex-1 space-y-1 w-full text-center sm:text-left">
+                            <div class="text-xs font-bold text-gray-400 tracking-wider">${category}</div>
+                            <div class="text-sm font-bold text-blue-600">${athleteId}</div>
+                            <div class="text-base font-bold text-gray-900">${studentName}</div>
+                            <div class="text-xs text-gray-500 font-medium"><span class="font-bold text-gray-700">โรงเรียน:</span> ${school}</div>
+                            <div class="text-xs text-gray-400 pt-1 border-t border-gray-50 mt-1 space-y-0.5">
+                                <p>• ครูผู้ฝึกซ้อม 1: ${coach1}</p>
+                                ${coach2 && coach2 !== '-' && coach2 !== '' ? `<p>• ครูผู้ฝึกซ้อม 2: ${coach2}</p>` : ''}
+                                <p>• ผู้อำนวยการ: ${director}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2 w-full sm:w-auto items-center sm:items-end flex-none">
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-lg border border-emerald-200/50">${checkinStatus}</span>
+                            <input type="file" id="file-${athleteId}" accept="image/*" class="hidden" onchange="uploadImage('${athleteId}', this)">
+                            <button id="btn-${athleteId}" onclick="document.getElementById('file-${athleteId}').click()" class="w-full sm:w-auto inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-all">
+                                <span class="material-symbols-rounded text-sm">photo_camera</span> เปลี่ยนรูป
+                            </button>
+                            ${cardUrl && cardUrl.toString().startsWith('http') ? `
+                                <a href="${cardUrl}" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl shadow-xs hover:bg-blue-700 transition-all">
+                                    <span class="material-symbols-rounded text-base">badge</span> บัตรนักกีฬา
+                                </a>
+                            ` : `
+                                <button disabled class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed">
+                                    <span class="material-symbols-rounded text-base">badge</span> ไม่มีบัตร
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        container.innerHTML = `
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-gray-900">รายชื่อผู้เข้าแข่งขัน</h2>
+                <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full">นักกีฬาทั้งหมด: ${validAthletesCount} คน</span>
+            </div>
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">${cardsHtml}</div>
+        `;
+    }
+
+    // ⚔️ 6. ฟังก์ชันสร้างหน้าจอ "ตารางการแข่งขัน"
+    function renderScheduleViewFromGrid(rows) {
+        const container = document.getElementById('contentDisplay');
+        if (rows.length <= 1) {
+            container.innerHTML = `<div class="text-center py-16 text-gray-400 text-sm">ยังไม่มีข้อมูลตารางการแข่งขันในขณะนี้</div>`;
+            return;
+        }
+
+        let totalMatches = 0, liveMatches = 0, endedMatches = 0;
+        let scheduleHtml = "";
+        const latestRowForAthlete = {};
+
+        for (let i = rows.length - 1; i >= 1; i--) {
+            const cols = rows[i];
+            if (cols && cols.length >= 9 && cols[1]) {
+                const p1Id = cols[3].toString().trim();
+                const p2Id = cols[4].toString().trim();
+                if (!latestRowForAthlete[p1Id]) latestRowForAthlete[p1Id] = i;
+                if (!latestRowForAthlete[p2Id]) latestRowForAthlete[p2Id] = i;
+            }
+        }
+
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i];
+            if (cols && cols.length >= 9 && cols[1]) {
+                const p1Id = cols[3].toString().trim();
+                const p2Id = cols[4].toString().trim();
+
+                if (latestRowForAthlete[p1Id] !== i || latestRowForAthlete[p2Id] !== i) {
+                    continue; 
+                }
+
+                totalMatches++;
+                const gameNo    = cols[1];
+                const tableNo   = cols[2];
+                const p1Score   = cols[5] || '0';
+                const p2Score   = cols[6] || '0';
+                const diffScore = cols[7] || '0';
+                const status    = cols[8].toString().trim();
+
+                const p1Info = globalAthletesMap[p1Id] || { name: p1Id, school: 'ข้อมูลสถาบัน' };
+                const p2Info = globalAthletesMap[p2Id] || { name: p2Id, school: 'ข้อมูลสถาบัน' };
+
+                let statusBadge = "", scoreDisplay = "", p1WinBadge = "", p2WinBadge = "";
+                let matchBadgeHtml = ""; 
+
+                if (status === "กำลังแข่ง") {
+                    liveMatches++;
+                    statusBadge = `
+                        <span class="px-2.5 py-1 bg-red-50 text-red-600 text-xs font-bold rounded-md border border-red-100 flex items-center gap-1.5 animate-pulse">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span> กำลังแข่ง
+                        </span>`;
+                    scoreDisplay = `<div class="text-xs font-bold text-gray-400 bg-slate-50 px-4 py-1.5 rounded-lg border border-dashed border-slate-200">VS</div>`;
+                    matchBadgeHtml = `
+                        <div class="flex-none w-full md:w-28 flex md:flex-col justify-between md:justify-center items-center gap-1 bg-red-50 px-3 py-2 rounded-xl border border-red-100 text-center">
+                            <span class="text-sm font-extrabold text-red-600">เกมที่ ${gameNo}</span>
+                            <span class="text-xs font-bold text-red-500/90 bg-white/80 px-2 py-0.5 rounded-md border border-red-200/50 w-full">โต๊ะที่ ${tableNo}</span>
+                        </div>`;
+                } else if (status === "เสร็จสิ้น") {
+                    endedMatches++;
+                    statusBadge = `
+                        <div class="flex flex-col items-center gap-0.5">
+                            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-md border border-emerald-100">จบการแข่งขัน</span>
+                            <span class="text-[10px] font-medium text-slate-400">ผลต่าง: ${diffScore}</span>
+                        </div>`;
+                    scoreDisplay = `<div class="text-base font-extrabold text-slate-800 bg-slate-100 px-4 py-1.5 rounded-xl border border-slate-200/60">${p1Score} - ${p2Score}</div>`;
+                    
+                    if (parseInt(p1Score) > parseInt(p2Score)) p1WinBadge = `<span class="text-[11px] font-bold text-emerald-500 ml-1">(WIN)</span>`;
+                    else if (parseInt(p2Score) > parseInt(p1Score)) p2WinBadge = `<span class="text-[11px] font-bold text-emerald-500 ml-1">(WIN)</span>`;
+                    
+                    matchBadgeHtml = `
+                        <div class="flex-none w-full md:w-28 flex md:flex-col justify-between md:justify-center items-center gap-1 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 text-center">
+                            <span class="text-sm font-extrabold text-emerald-700">เกมที่ ${gameNo}</span>
+                            <span class="text-xs font-bold text-emerald-600 bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200/50 w-full">โต๊ะที่ ${tableNo}</span>
+                        </div>`;
+                } else {
+                    statusBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 text-xs font-bold rounded-md border border-slate-200">รอแข่ง</span>`;
+                    scoreDisplay = `<div class="text-xs font-bold text-gray-400 bg-slate-50 px-4 py-1.5 rounded-lg border border-dashed border-slate-200">VS</div>`;
+                    matchBadgeHtml = `
+                        <div class="flex-none w-full md:w-28 flex md:flex-col justify-between md:justify-center items-center gap-1 bg-slate-100/80 px-3 py-2 rounded-xl border border-slate-200/40 text-center">
+                            <span class="text-sm font-extrabold text-slate-700">เกมที่ ${gameNo}</span>
+                            <span class="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200 w-full">โต๊ะที่ ${tableNo}</span>
+                        </div>`;
+                }
+
+                scheduleHtml += `
+                    <div class="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row gap-5 items-center justify-between shadow-xs hover:border-gray-200/80 transition-all">
+                        ${matchBadgeHtml}
+                        <div class="flex flex-1 items-center gap-3 w-full md:w-auto justify-center md:justify-start">
+                            <div class="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-gray-100 shrink-0">
+                                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center md:text-left">
+                                <div class="flex items-center justify-center md:justify-start gap-1.5">
+                                    <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-500">${p1Id}</span>
+                                    <span class="text-sm font-bold text-slate-800">${p1Info.name}</span>${p1WinBadge}
+                                </div>
+                                <p class="text-xs text-gray-400 font-medium">${p1Info.school}</p>
+                            </div>
+                        </div>
+                        <div class="flex-none my-2 md:my-0 flex flex-col items-center gap-1.5 min-w-[120px]">${scoreDisplay}${statusBadge}</div>
+                        <div class="flex flex-1 items-center gap-3 w-full md:w-auto justify-center md:justify-end flex-row-reverse">
+                            <div class="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-gray-100 shrink-0">
+                                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center md:text-right">
+                                <div class="flex items-center justify-center md:justify-end gap-1.5 flex-row-reverse md:flex-row">
+                                    ${p2WinBadge}<span class="text-sm font-bold text-slate-800">${p2Info.name}</span>
+                                    <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-500">${p2Id}</span>
+                                </div>
+                                <p class="text-xs text-gray-400 font-medium">${p2Info.school}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        container.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-6 border-b border-gray-50 pb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">ตารางคะแนนและการแข่งขัน</h2>
+                    <p class="text-xs text-gray-400">ข้อมูลอัปเดตอัตโนมัติรอบปัจจุบัน</p>
+                </div>
+                <div class="flex gap-2 text-xs font-bold">
+                    <span class="px-2.5 py-1 bg-slate-50 text-slate-600 rounded-lg border border-slate-200">แมตช์ปัจจุบัน: ${totalMatches} คู่</span>
+                    <span class="px-2.5 py-1 bg-red-50 text-red-600 rounded-lg border border-red-100 animate-pulse">กำลังแข่ง: ${liveMatches}</span>
+                    <span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100">เสร็จสิ้น: ${endedMatches}</span>
+                </div>
+            </div>
+            <div class="flex flex-col gap-3">${scheduleHtml}</div>
+        `;
+    }
+
+    // 🏆 7. ฟังก์ชันสร้างหน้าจอ Leaderboard (คอลัมน์ B - G)
+   // 🏆 7. ฟังก์ชันสร้างหน้าจอ Leaderboard (ซ่อมแซมการแมปคอลัมน์ B - G ให้ตรงล็อก)
+    function renderLiveScoreView(rows) {
+        const container = document.getElementById('contentDisplay');
+        if (rows.length <= 1) {
+            container.innerHTML = `<div class="text-center py-16 text-gray-400 text-sm">กำลังคำนวณคะแนนสะสม...</div>`;
+            return;
+        }
+
+        const rankings = [];
+        // วนลูปเริ่มจาก i = 1 (ข้ามหัวตารางแถวแรก)
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i];
+            // ตรวจสอบว่ามีข้อมูลครบถ้วนและมีรหัสนักกีฬาในคอลัมน์ C (cols[1])
+            if (cols && cols.length >= 6 && cols[1] && cols[1].toString().trim() !== "") {
+                const rank      = cols[0]; // คอลัมน์ B (อันดับ)
+                const athleteId = cols[1].toString().trim(); // คอลัมน์ C (รหัสนักกีฬา)
+                const name      = cols[2]; // คอลัมน์ D (ชื่อ)
+                const school    = cols[3]; // คอลัมน์ E (โรงเรียน)
+                const points    = cols[4] || '0'; // คอลัมน์ F (คะแนน)
+                const margin    = cols[5] || '0'; // คอลัมน์ G (Margin)
+
+                // ดึงรูปโปรไฟล์จากคลังรูปภาพหลัก (ถ้ามี)
+                const athleteInfo = globalAthletesMap[athleteId] || { img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
+
+                rankings.push({
+                    rank: rank,
+                    id: athleteId,
+                    name: name,
+                    school: school,
+                    points: points,
+                    margin: margin,
+                    img: athleteInfo.img
+                });
+            }
+        }
+
+        // --- ส่วนแสดงผลโพเดียม (Top 3) ---
+        let podiumHtml = "";
+        if (rankings.length >= 1) {
+            const p1 = rankings[0];
+            const p2 = rankings[1] || { id: '-', name: '-', school: '-', points: '-', margin: '-', img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
+            const p3 = rankings[2] || { id: '-', name: '-', school: '-', points: '-', margin: '-', img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
+            
+            podiumHtml = `
+                <div class="flex flex-col md:flex-row items-end justify-center gap-4 mb-12 mt-8">
+                    <div class="order-2 md:order-1 flex flex-col items-center group">
+                        <div class="relative mb-4">
+                            <div class="w-24 h-24 rounded-full border-4 border-slate-200 overflow-hidden shadow-lg transition-transform group-hover:scale-105 bg-white">
+                                <img src="${p2.img}" class="w-full h-full object-cover" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                            </div>
+                            <div class="absolute -top-2 -right-2 bg-slate-400 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-2 border-white text-sm shadow">2</div>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-tight">${p2.id}</p>
+                            <h3 class="text-sm font-bold text-slate-800 leading-tight">${p2.name}</h3>
+                            <p class="text-[11px] text-slate-400 mb-2">${p2.school}</p>
+                            <div class="bg-slate-100 px-3 py-1 rounded-full text-xs font-black text-slate-700">คะแนน: ${p2.points}</div>
+                            <p class="text-xs font-bold text-emerald-500 mt-1">Margin: +${p2.margin}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="order-1 md:order-2 flex flex-col items-center group -mt-8">
+                        <div class="relative mb-4">
+                            <div class="w-32 h-32 rounded-full border-4 border-amber-400 overflow-hidden shadow-2xl transition-transform group-hover:scale-105 bg-white">
+                                <img src="${p1.img}" class="w-full h-full object-cover" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                            </div>
+                            <div class="absolute -top-3 -right-3 bg-amber-400 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold border-4 border-white text-lg shadow-lg animate-bounce">1</div>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs font-bold text-amber-500 uppercase tracking-tight">${p1.id}</p>
+                            <h3 class="text-lg font-black text-slate-900 leading-tight">${p1.name}</h3>
+                            <p class="text-xs text-slate-400 mb-2">${p1.school}</p>
+                            <div class="bg-amber-100 px-4 py-1.5 rounded-full text-sm font-black text-amber-700 shadow-sm">คะแนน: ${p1.points}</div>
+                            <p class="text-sm font-bold text-emerald-500 mt-1.5">Margin: +${p1.margin}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="order-3 md:order-3 flex flex-col items-center group">
+                        <div class="relative mb-4">
+                            <div class="w-24 h-24 rounded-full border-4 border-orange-300 overflow-hidden shadow-lg transition-transform group-hover:scale-105 bg-white">
+                                <img src="${p3.img}" class="w-full h-full object-cover" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                            </div>
+                            <div class="absolute -top-2 -right-2 bg-orange-400 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-2 border-white text-sm shadow">3</div>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-tight">${p3.id}</p>
+                            <h3 class="text-sm font-bold text-slate-800 leading-tight">${p3.name}</h3>
+                            <p class="text-[11px] text-slate-400 mb-2">${p3.school}</p>
+                            <div class="bg-orange-50 px-3 py-1 rounded-full text-xs font-black text-orange-700">คะแนน: ${p3.points}</div>
+                            <p class="text-xs font-bold text-emerald-500 mt-1">Margin: +${p3.margin}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- ส่วนตารางสรุปผลอันดับรวมทั้งหมด ---
+        let tableRowsHtml = "";
+        for (let i = 0; i < rankings.length; i++) {
+            const item = rankings[i];
+            tableRowsHtml += `
+                <tr class="border-b border-gray-50 hover:bg-slate-50/50 transition-colors">
+                    <td class="py-4 px-4 text-center font-bold text-slate-700">${item.rank}</td>
+                    <td class="py-4 px-2">
+                        <div class="w-10 h-10 rounded-full overflow-hidden border border-slate-100 mx-auto bg-white">
+                            <img src="${item.img}" class="w-full h-full object-cover" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                        </div>
+                    </td>
+                    <td class="py-4 px-4 text-xs font-bold text-blue-600">${item.id}</td>
+                    <td class="py-4 px-4 font-bold text-slate-800 text-sm">${item.name}</td>
+                    <td class="py-4 px-4 text-xs text-slate-400">${item.school}</td>
+                    <td class="py-4 px-4 text-center font-black text-slate-700 text-sm">${item.points}</td>
+                    <td class="py-4 px-4 text-center font-bold text-emerald-500 text-sm">+${item.margin}</td>
+                </tr>
+            `;
+        }
+
+        container.innerHTML = `
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-50 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900">ดูผลคะแนนแบบเรียลไทม์</h2>
+                        <p class="text-xs text-gray-400">สรุปคะแนนและอันดับสะสมล่าสุดตามข้อมูลในระบบ</p>
+                    </div>
+                </div>
+                
+                ${podiumHtml}
+                
+                <div class="overflow-hidden rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+                    <table class="w-full text-left border-collapse bg-white">
+                        <thead>
+                            <tr class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-gray-100">
+                                <th class="py-4 px-4 text-center w-16">อันดับ</th>
+                                <th class="py-4 px-2 text-center w-16">รูป</th>
+                                <th class="py-4 px-4 w-24">รหัส</th>
+                                <th class="py-4 px-4">ชื่อ-นามสกุล</th>
+                                <th class="py-4 px-4">โรงเรียน</th>
+                                <th class="py-4 px-4 text-center w-28">คะแนนสะสม</th>
+                                <th class="py-4 px-4 text-center w-28">Margin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderResultsView(rows) {
+        document.getElementById('contentDisplay').innerHTML = `<p class="text-sm text-gray-500">ทำเนียบแชมป์และตารางคะแนนโชว์ตรงนี้ (จำนวนแถวข้อมูล: ${rows.length})</p>`;
+    }
+
+    // 📸 8. ฟังก์ชันอัปโหลดรูปภาพผ่าน Ajax (POST)
+    function uploadImage(athleteId, input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const reader = new FileReader();
+        const btn = document.getElementById(`btn-${athleteId}`);
+        const originalText = btn.innerHTML;
+        
+        btn.disabled = true;
+        btn.innerHTML = `<span class="inline-block animate-spin w-3 h-3 border-2 border-current border-t-transparent rounded-full mr-1"></span> อัปโหลด...`;
+
+        reader.onload = function(e) {
+            fetch(webAppUrl, {
+                method: 'POST',
+                body: JSON.stringify({
+                    athleteId: athleteId,
+                    image: e.target.result,
+                    fileName: `athlete_${athleteId}_${Date.now()}.jpg`
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    document.getElementById(`img-${athleteId}`).src = data.url;
+                    alert('อัปโหลดรูปภาพเรียบร้อย ระบบหลังบ้านบันทึกแล้วครับ!');
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + data.message);
+                }
+            })
+            .catch(err => alert('เชื่อมต่อระบบล้มเหลว กรุณาตรวจสอบเว็บแอป'))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // 🎛️ 9. ฟังก์ชันสลับแท็บ (ซ่อมแซมจุดบกพร่องที่ทำให้กดไม่ไป)
+    function switchTab(tabName) {
+        currentTab = tabName; // เปลี่ยน State ไปยังแท็บที่ถูกเลือกจริง
+
+        // รีเซ็ตการแต่งสไตล์คลาส Active ของปุ่มแท็บ
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+        });
+        
+        const activeBtn = document.getElementById(`tab-${tabName}`);
+        if (activeBtn) {
+            activeBtn.classList.add('active', 'border-blue-500', 'text-blue-600');
+        }
+
+        // รีเซ็ตเวลานับถอยหลังกลับไปเริ่มต้นใหม่
+        countdown = REFRESH_INTERVAL;
+        updateCountdownUI();
+
+        // โหลดข้อมูลโดยบังคับขึ้น Loading เฉพาะตอนเปลี่ยนหน้าเพื่อความชัวร์ว่าเปลี่ยนแท็บสำเร็จ
+        loadData(true);
+    }
+
+    // ⏱️ 10. ระบบควบคุมการอัปเดตเวลานับถอยหลังในหน้าจอ (วินาทีต่อวินาที)
+    function updateCountdownUI() {
+        const timerElement = document.getElementById('refreshCountdown');
+        if (timerElement) {
+            timerElement.innerText = countdown;
+        }
+    }
+
+    function startTimer() {
+        if (refreshTimer) clearInterval(refreshTimer);
+        
+        refreshTimer = setInterval(function() {
+            countdown--;
+            updateCountdownUI();
+            
+            if (countdown <= 0) {
+                countdown = REFRESH_INTERVAL;
+                loadData(false); // อัปเดตข้อมูลเงียบๆ ด้านหลังทุก 30 วิ
+            }
+        }, 1000);
+    }
+
+    // ทำงานอัตโนมัติเมื่อเปิดเว็บ
+    window.onload = function() {
+        loadData(false);
+        startTimer();
+    };
+</script>
+</body>
+</html>
