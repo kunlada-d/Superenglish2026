@@ -107,7 +107,7 @@
             padding: 14px 10px;
             border-bottom: 1px solid #e2e8f0;
             font-size: 14px;
-            color: #1e293b;
+            color: #0a60e9;
         }
         .custom-leaderboard-table tr:hover {
             background-color: rgba(0,0,0,0.01);
@@ -201,11 +201,7 @@
             <div class="flex gap-2 w-full md:max-w-md items-center">
                 <div class="relative flex-1">
                     <select id="sportSelect" onchange="onSportChange()" class="w-full px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:border-[#fd5051] focus:ring-4 focus:ring-[#fd5051]/5 transition-all appearance-none cursor-pointer">
-                        <option value="mbk">สูตรคูณเร็ว ประถมต้น</option>
-                        <option value="mbe">สูตรคูณเร็ว ประถมปลาย</option>
-                        <option value="mbh">สูตรคูณเร็ว มัธยม</option>
-                        <option value="sdh">Sudoku มัธยม</option>
-                        <option value="ame">A-Math ประถม</option>
+                         <option value="ame">A-Math ประถม</option>
                         <option value="amj">A-Math ม.ต้น</option>
                         <option value="amh">A-Math ม.ปลาย</option>
                         <option value="ams">Super A-Math</option>
@@ -215,6 +211,10 @@
                         <option value="cws">Super Crossword</option>
                         <option value="kke">คำคมประถม</option>
                         <option value="kkh">คำคมมัธยม</option>
+                        <option value="mbk">สูตรคูณเร็ว ประถมต้น</option>
+                        <option value="mbe">สูตรคูณเร็ว ประถมปลาย</option>
+                        <option value="mbh">สูตรคูณเร็ว มัธยม</option>
+                        <option value="sdh">Sudoku มัธยม</option>
                         <option value="ste">สะกดคำภาษาไทย ประถม</option>
                         <option value="sbh">Spelling Bee</option>
                     </select>
@@ -274,15 +274,15 @@
             spreadsheetId: '1X6VBMvNthjVHgKaFjap8NZLyu2G6h_xSvu--C_lGRu4', 
             athletes:  'PLAYERSS',  
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+                livescore: 'MATCHES',
+                results:   'STANDINGS'
         },
         mbh: {
             spreadsheetId: '1YspB3coFEK4sxtdIf3f3Zehb-Td9K_rO8lHZhN9majc',
             athletes:  'PLAYERSS',
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+            livescore: 'STANDINGS',   
+            results:   'SCORES'
         },
         sdh: {
             spreadsheetId: '1qhkOXvoPXUU5SKPAVZNq7KDCgS6NQWd2rpBLMmIgRKE', 
@@ -295,15 +295,15 @@
             spreadsheetId: '1QbPKZ2tlf6RGC96kpl11AKoBEXjz3UxgwsPbky2ttiU', 
             athletes:  'PLAYERSS',  
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+            livescore: 'STANDINGS',
+            results:   'SCORES'
         },
         amj: {
             spreadsheetId: '1ZXqXsqDdmbvn5bAP2Y59BNemKE-uHQeAWnoZNxSdI1M',
             athletes:  'PLAYERSS',
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+            livescore: 'STANDINGS',
+            results:   'SCORES'
         },
         amh: {
             spreadsheetId: '1npFhZ4whThlC77L4yoGlntyY5SVu2CI6fQYPhey4Kp0', 
@@ -316,15 +316,15 @@
             spreadsheetId: '1Oo6giO3d8wtw8Rg60rTMZk1dIK92_alaEdgJaAeloTA', 
             athletes:  'PLAYERSS',  
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+            livescore: 'STANDINGS',
+            results:   'SCORES'
         },
         cwe: {
             spreadsheetId: '102cOikKEX3EXek0mhF0vRBnJO9oqTgnSmP_6X7D8qlY',
             athletes:  'PLAYERSS',
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+                livescore: 'MATCHES',
+                results:   'STANDINGS'
         },
         cwj: {
             spreadsheetId: '1c0LG8DSNZdbfNhypA1LPbFsRyvN3umeuoBDiKdEEGwg', 
@@ -337,15 +337,15 @@
             spreadsheetId: '1rbyql-djUQy3i1kERVGgDwQAJqv1OUGXFsL5MQV6cy0', 
             athletes:  'PLAYERSS',  
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+            livescore: 'STANDINGS',
+            results:   'SCORES'
         },
        cws: {
             spreadsheetId: '1s_GITIcVTCSKq6TFTNmQgb3ENn1mPSY3-8iXW4UCRUQ',
             athletes:  'PLAYERSS',
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+            livescore: 'STANDINGS',
+            results:   'SCORES'
         },
         kke: {
             spreadsheetId: '1p1mxXN10NnXbYCHM8oJyJKS4JLg6Vg3R4FBNCg6g-L8', 
@@ -358,8 +358,8 @@
             spreadsheetId: '14ARVsfNjJrWivet_w2tqB6TAAhE5MenwZH6jdI9kA9Y', 
             athletes:  'PLAYERSS',  
             schedule:  'MATCHES',
-            livescore: 'MATCHES',
-            results:   'STANDINGS'
+            livescore: 'STANDINGS',
+            results:   'SCORES'
         },
         ste: {
             spreadsheetId: '1tx3roBfab9q8GmR3Z2UcI4GxfuwCULKXH4aqT1ncN88',
@@ -400,7 +400,7 @@
     }
 
     function manualRefresh() {
-        countdownSeconds = 30;
+        countdownSeconds = 8;
         loadData();
     }
 
@@ -410,7 +410,7 @@
         countdownInterval = setInterval(() => {
             countdownSeconds--;
             if(countdownSeconds <= 0) {
-                countdownSeconds = 30;
+                countdownSeconds = 8;
                 loadData();
             }
             const txt = document.getElementById('countdownText');
@@ -447,20 +447,19 @@
         }
 
         try {
-            if (Object.keys(globalAthletesMap).length === 0) {
-                const athRes = await fetch(`${webAppUrl}?id=${targetSheetId}&sheet=${sportConfig.athletes}`);
-                const athData = await athRes.json();
-                if (athData.status === "success") saveAthletesToMap(athData.data);
-            }
+            const fetchSheet = (sheetName) =>
+                fetch(`${webAppUrl}?id=${targetSheetId}&sheet=${sheetName}`).then(r => r.json());
+
+            const needAthletes = Object.keys(globalAthletesMap).length === 0;
 
             let rawRows = [];
             if (currentTab === 'livescore') {
-                const resStandings = await fetch(`${webAppUrl}?id=${targetSheetId}&sheet=${sportConfig.livescore}`);
-                const dataStandings = await resStandings.json();
-                
-                const resMatches = await fetch(`${webAppUrl}?id=${targetSheetId}&sheet=${sportConfig.schedule}`);
-                const dataMatches = await resMatches.json();
-                
+                const calls = [fetchSheet(sportConfig.livescore), fetchSheet(sportConfig.schedule)];
+                if (needAthletes) calls.push(fetchSheet(sportConfig.athletes));
+                const [dataStandings, dataMatches, athData] = await Promise.all(calls);
+
+                if (needAthletes && athData && athData.status === "success") saveAthletesToMap(athData.data);
+
                 if (dataStandings.status === "success") {
                     rawRows = dataStandings.data;
                     if (dataMatches.status === "success") {
@@ -471,8 +470,12 @@
                     renderCurrentTabFromRows(rawRows);
                 }
             } else {
-                const response = await fetch(`${webAppUrl}?id=${targetSheetId}&sheet=${targetSheet}`);
-                const result = await response.json();
+                const calls = [fetchSheet(targetSheet)];
+                if (needAthletes) calls.push(fetchSheet(sportConfig.athletes));
+                const [result, athData] = await Promise.all(calls);
+
+                if (needAthletes && athData && athData.status === "success") saveAthletesToMap(athData.data);
+
                 if (result.status === "success") {
                     rawRows = result.data; 
                     globalCacheData[cacheKey] = rawRows;
@@ -590,11 +593,9 @@
 
     // ⚔️ 2. แท็บ: ตารางการแข่งขัน (UI แฟลตการ์ด ซ้าย-ขวา แบบใหม่ล่าสุด แมทช์เข้ากับ Grid ของ Google Sheets)
     function renderScheduleViewFromGrid(rows) {
-        const container = document.getElementById('contentDisplay');
-        if(!container) return;
-        
-        if(!rows || rows.length === 0) {
-            container.innerHTML = '<div class="text-center py-16 text-gray-400 text-sm">ไม่มีข้อมูลตารางการแข่งขันในกลุ่มนี้</div>';
+       const container = document.getElementById('contentDisplay');
+        if (!rows || rows.length <= 1) {
+            container.innerHTML = `<div class="text-center py-16 text-gray-400 text-sm">ไม่มีข้อมูลตารางการแข่งขันในกลุ่มนี้</div>`;
             return;
         }
 
@@ -616,7 +617,7 @@
         var finishedCount = 0;
         
         validRows.forEach(function(row) {
-            var status = row[7] ? row[7].toString().trim() : "";
+            var status = row[1] ? row[1].toString().trim() : "";
             if (status === 'กำลังแข่ง' || status === 'live') playingCount++;
             if (status === 'เสร็จสิ้น' || status === 'finished') finishedCount++;
         });
@@ -738,10 +739,11 @@
                 const name      = cols[3] || 'ไม่ระบุชื่อ';   
                 const school    = cols[4] || '-';          
                 const win       = cols[5] !== undefined ? cols[5] : '0'; 
-                const loss      = cols[6] !== undefined ? cols[6] : '0'; 
-                const draw      = cols[7] !== undefined ? cols[7] : '0'; 
-                const margin    = cols[8] !== undefined ? cols[8] : '0'; 
-
+                const draw      = cols[6] !== undefined ? cols[6] : '0'; 
+                const loss      = cols[7] !== undefined ? cols[7] : '0'; 
+                const total     = cols[8] !== undefined ? cols[8] : '0'; 
+                const margin    = cols[9] !== undefined ? cols[9] : '0'; 
+                const result    = cols[10] !== undefined ? cols[10] : '0';
                 const athleteInfo = globalAthletesMap[athleteId] || { img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" };
 
                 rankings.push({
@@ -749,8 +751,10 @@
                     id: athleteId,
                     name: name,
                     school: school,
-                    record: `${win} - ${loss} - ${draw}`,
+                    record: `${win} - ${draw} - ${loss}`,
+                    total: total,
                     margin: margin,
+                    result: result,
                     img: athleteInfo.img
                 });
             }
@@ -825,8 +829,10 @@
                         </div>
                     </td>
                     <td class="p-4 text-xs font-medium text-slate-500 hidden md:table-cell">${item.school}</td>
-                    <td class="p-4 font-bold text-center text-slate-800">${item.record}</td>
-                    <td class="p-4 font-bold text-center text-blue-600">${item.margin}</td>
+                    <td class="p-4  text-center text-slate-800">${item.record}</td>
+                    <td class="p-4  text-center text-blue-600">${item.total}</td>
+                    <td class="p-4  text-center text-blue-600">${item.margin}</td>
+                    <td class="p-4  text-center text-purple-600">${item.result}</td>
                 </tr>
             `;
         });
@@ -845,8 +851,10 @@
                             <th class="text-center w-12">อันดับ</th>
                             <th>รายชื่อนักกีฬา</th>
                             <th class="hidden md:table-cell">โรงเรียน</th>
-                            <th class="text-center">ชนะ-แพ้-เสมอ</th>
-                            <th class="text-center">ผลต่างคะแนน</th>
+                            <th class="text-center">ชนะ-เสมอ-แพ้</th>
+                            <th class="text-center">คะแนน</th>
+                            <th class="text-center">ผลต่างสะสม</th>
+                            <th class="text-center">ผลการแข่งขัน</th>
                         </tr>
                     </thead>
                     <tbody>${tableRowsHtml}</tbody>
@@ -873,9 +881,16 @@
                         <tr class="bg-slate-50 border-b border-gray-200">
                             <th class="p-3 text-sm font-bold text-gray-600">ลำดับ</th>
                             <th class="p-3 text-sm font-bold text-gray-600">รหัส</th>
-                            <th class="p-3 text-sm font-bold text-gray-600">ชื่อ-นามสกุล</th>
-                            <th class="p-3 text-sm font-bold text-gray-600">โรงเรียน</th>
-                            <th class="p-3 text-sm font-bold text-gray-600 text-center">คะแนนรวม</th>
+                            <th class="p-3 text-sm  text-gray-600">ชื่อ-นามสกุล</th>
+                            <th class="p-3 text-sm  text-gray-600">โรงเรียน</th>
+                            <th class="p-3 text-sm  text-gray-600">ชนะ</th>
+                            <th class="p-3 text-sm  text-gray-600">เสมอ</th>
+                            <th class="p-3 text-sm  text-gray-600">แพ้</th>
+                            <th class="p-3 text-sm  text-gray-600">คะแนน</th>
+                            <th class="p-3 text-sm  text-gray-600">ผลต่างสะสม</th>
+                            <th class="p-3 text-sm  text-gray-200">1PF</th>
+                            <th class="p-3 text-sm  text-gray-200">1PA</th>
+                            <th class="p-3 text-sm  text-gray-200">1PD</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -885,11 +900,17 @@
             if (cols && cols.length >= 3) {
                 htmlTable += `
                     <tr class="border-b border-gray-100 hover:bg-slate-50/50 transition-all">
-                        <td class="p-3 text-sm font-medium text-gray-500">${i}</td>
-                        <td class="p-3 text-sm font-bold text-blue-600">${cols[0] || '-'}</td>
-                        <td class="p-3 text-sm font-bold text-gray-800">${cols[1] || '-'}</td>
+                        <td class="p-3 text-sm font-medium text-gray-400">${i}</td>
+                        <td class="p-3 text-sm font-bold text-blue-500">${cols[0] || '-'}</td>
+                        <td class="p-3 text-sm font-bold text-gray-500">${cols[1] || '-'}</td>
                         <td class="p-3 text-sm text-gray-500">${cols[2] || '-'}</td>
-                        <td class="p-3 text-sm font-black text-center text-gray-900">${cols[3] || '0'}</td>
+                        <td class="p-3 text-sm font-black  text-gray-400">${cols[3] || '0'}</td>
+                        <td class="p-3 text-sm font-black  text-gray-400">${cols[4] || '0'}</td>
+                        <td class="p-3 text-sm font-black  text-gray-400">${cols[5] || '0'}</td>
+                        <td class="p-3 text-sm font-black  text-blue-400">${cols[6] || '0'}</td>
+                        <td class="p-3 text-sm font-black  text-red-400">${cols[7] || '0'}</td>
+                        <td class="p-3 text-sm font-black  text-gray-400">${cols[9] || '0'}</td>
+                        <td class="p-3 text-sm font-black  text-gray-400">${cols[10] || '0'}</td>
                     </tr>`;
             }
         }
